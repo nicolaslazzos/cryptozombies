@@ -11,6 +11,7 @@ const App: React.FC = () => {
 
   const [createForm, setCreateForm] = React.useState({ name: "", loading: false });
   const [feedForm, setFeedForm] = React.useState({ zombieId: "", victimId: "", loading: false });
+  const [levelUpForm, setLevelUpForm] = React.useState({ zombieId: "", loading: false });
 
   React.useEffect(() => {
     initializeContract();
@@ -110,6 +111,32 @@ const App: React.FC = () => {
       });
   };
 
+  const changeLevelUpFormValue = (e: any) => {
+    setLevelUpForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const levelUp = () => {
+    const { zombieId } = levelUpForm;
+
+    if (!zombieId) return;
+
+    setLevelUpForm((prev) => ({ ...prev, loading: true }));
+
+    contract.methods
+      .levelUp(zombieId)
+      .send({ from: address, value: web3.utils.toWei("0.001", "ether") })
+      .on("receipt", () => {
+        updateOwnerZombies();
+
+        setLevelUpForm((prev) => ({ ...prev, loading: false }));
+      })
+      .on("error", (error: Error) => {
+        console.error(error);
+
+        setLevelUpForm((prev) => ({ ...prev, loading: false }));
+      });
+  };
+
   return (
     <div>
       <h4>Create Zombie</h4>
@@ -138,6 +165,17 @@ const App: React.FC = () => {
         onChange={changeFeedFormValue}
       />
       <button onClick={feedOnKitty}>{feedForm.loading ? "Feeding..." : "Feed Zombie"}</button>
+      <br />
+      <h4>Level Up Zombie</h4>
+      <input
+        type="number"
+        name="zombieId"
+        placeholder="Zombie ID"
+        value={levelUpForm.zombieId}
+        onChange={changeLevelUpFormValue}
+      />
+      <button onClick={levelUp}>{levelUpForm.loading ? "Leveling Up..." : "Level Up Zombie"}</button>
+      <br />
       {zombies.map((z: any) => {
         return `${JSON.stringify(z)}\n`;
       })}
