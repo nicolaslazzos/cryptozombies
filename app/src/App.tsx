@@ -25,6 +25,22 @@ const App: React.FC = () => {
     try {
       const contract = new web3.eth.Contract(cryptozombies.abi, cryptozombies.address);
 
+      // use `filter` to only fire this code when `_to` equals `address`
+      // for this, the `_to` param in the contract event should be `indexed`
+      contract.events
+        .Transfer({ filter: { _to: address } })
+        .on("data", (event: any) => {
+          console.info("transfer event", event.returnValues);
+        })
+        .on("error", console.error);
+
+      // events gets saved in the blockchain and can be used as a way to store data only needed by the frontend
+      // becaus the contract cant access the past events, but we cant get them from the user interface
+      contract.events.getPastEvents("NewZombie", { fromBlock: 0, toBlock: "latest" }).then((events: any[]) => {
+        // `events` is an array of `event` objects that we can iterate
+        console.info("past events", events);
+      });
+
       setContract(contract);
     } catch (e) {
       console.error(e);
