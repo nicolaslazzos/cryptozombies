@@ -24,7 +24,7 @@ export const Web3Provider: React.FC<Web3ProviderProps> = (props) => {
   const [context, setContext] = React.useState<Web3ContextProps>(defaultContext);
 
   React.useEffect(() => {
-    window.addEventListener("load", function () {
+    window.addEventListener("load", async () => {
       // @ts-ignore
       if (window?.web3) {
         // use the injected provider (mist / metamask)
@@ -32,13 +32,19 @@ export const Web3Provider: React.FC<Web3ProviderProps> = (props) => {
         // @ts-ignore
         const web3js: any = new Web3(window.web3.currentProvider);
 
+        // @ts-ignore
+        if (window?.ethereum) {
+          // @ts-ignore
+          await window.ethereum.enable();
+        }
+
         setContext((prev) => ({ ...prev, web3: web3js, address: web3js.eth.accounts?.[0] ?? "" }));
 
         console.info("Web3 provider initialized!");
       } else {
         setContext((prev) => ({ ...prev, web3: null, address: "" }));
 
-        this.alert("You need to install MetaMask!");
+        alert("You need to install MetaMask!");
       }
     });
   }, []);
@@ -47,10 +53,14 @@ export const Web3Provider: React.FC<Web3ProviderProps> = (props) => {
     if (!context.web3) return;
 
     const accountInterval = setInterval(() => {
-      if (context.web3.eth.accounts?.[0] !== context.address) {
-        setContext((prev) => ({ ...prev, address: context.web3.eth.accounts?.[0] ?? "" }));
-      }
-    }, 100);
+      context.web3.eth.getAccounts((error: Error, accounts: any[]) => {
+        if (error) {
+          console.error(error);
+        } else {
+          setContext((prev) => ({ ...prev, address: accounts?.[0] ?? "" }));
+        }
+      });
+    }, 1000);
 
     props?.onReady?.(context);
 

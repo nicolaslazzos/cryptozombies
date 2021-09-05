@@ -9,6 +9,9 @@ const App: React.FC = () => {
   const [contract, setContract] = React.useState<any>();
   const [zombies, setZombies] = React.useState<any[]>([]);
 
+  const [createForm, setCreateForm] = React.useState({ name: "", loading: false });
+  const [feedForm, setFeedForm] = React.useState({ zombieId: "", victimId: "", loading: false });
+
   React.useEffect(() => {
     initializeContract();
   }, []);
@@ -55,8 +58,86 @@ const App: React.FC = () => {
     }
   };
 
+  const changeCreateFormValue = (e: any) => {
+    setCreateForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const createZombie = () => {
+    const { name } = createForm;
+
+    if (!name) return;
+
+    setCreateForm((prev) => ({ ...prev, loading: true }));
+
+    return contract.methods
+      .createRandomZombie(name)
+      .send({ from: address })
+      .on("receipt", () => {
+        updateOwnerZombies();
+
+        setCreateForm((prev) => ({ ...prev, loading: false }));
+      })
+      .on("error", (error: Error) => {
+        console.error(error);
+
+        setCreateForm((prev) => ({ ...prev, loading: false }));
+      });
+  };
+
+  const changeFeedFormValue = (e: any) => {
+    setFeedForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const feedOnKitty = () => {
+    const { zombieId, victimId } = feedForm;
+
+    if (!zombieId || !victimId) return;
+
+    setFeedForm((prev) => ({ ...prev, loading: true }));
+
+    return contract.methods
+      .feedOnKitty(zombieId, victimId)
+      .send({ from: address })
+      .on("receipt", () => {
+        updateOwnerZombies();
+
+        setFeedForm((prev) => ({ ...prev, loading: false }));
+      })
+      .on("error", (error: Error) => {
+        console.error(error);
+
+        setFeedForm((prev) => ({ ...prev, loading: false }));
+      });
+  };
+
   return (
     <div>
+      <h4>Create Zombie</h4>
+      <input
+        type="text"
+        name="name"
+        placeholder="Zombie Name"
+        value={createForm.name}
+        onChange={changeCreateFormValue}
+      />
+      <button onClick={createZombie}>{createForm.loading ? "Creating..." : "Create Zombie"}</button>
+      <br />
+      <h4>Feed Zombie</h4>
+      <input
+        type="number"
+        name="zombieId"
+        placeholder="Zombie ID"
+        value={feedForm.zombieId}
+        onChange={changeFeedFormValue}
+      />
+      <input
+        type="number"
+        name="victimId"
+        placeholder="Victim ID"
+        value={feedForm.victimId}
+        onChange={changeFeedFormValue}
+      />
+      <button onClick={feedOnKitty}>{feedForm.loading ? "Feeding..." : "Feed Zombie"}</button>
       {zombies.map((z: any) => {
         return `${JSON.stringify(z)}\n`;
       })}
