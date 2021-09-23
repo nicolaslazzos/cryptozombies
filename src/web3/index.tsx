@@ -26,16 +26,16 @@ export const Web3Provider: React.FC<Web3ProviderProps> = (props) => {
   React.useEffect(() => {
     window.addEventListener("load", async () => {
       // @ts-ignore
-      if (window?.web3) {
+      if (window?.ethereum) {
         // use the injected provider (mist / metamask)
 
         // @ts-ignore
-        const web3js: any = new Web3(window.web3.currentProvider);
+        const web3js: any = new Web3(window.ethereum);
 
         // @ts-ignore
         if (window?.ethereum) {
           // @ts-ignore
-          await window.ethereum.enable();
+          await window.ethereum.request({ method: "eth_requestAccounts" });
         }
 
         setContext((prev) => ({ ...prev, web3: web3js, address: web3js.eth.accounts?.[0] ?? "" }));
