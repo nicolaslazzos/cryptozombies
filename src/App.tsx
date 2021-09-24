@@ -36,8 +36,8 @@ const App: React.FC = () => {
 
       // events gets saved in the blockchain and can be used as a way to store data only needed by the frontend
       // because the contract cant access the past events, but we cant get them from the user interface
-      contract.events
-        .getPastEvents?.("NewZombie", { fromBlock: 0, toBlock: "latest" })
+      contract
+        .getPastEvents("NewZombie", { fromBlock: 0, toBlock: "latest" })
         .then((events: any[]) => {
           // `events` is an array of `event` objects that we can iterate
           console.info("past events", events);
