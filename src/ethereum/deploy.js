@@ -2,7 +2,7 @@ const HDWalletProvider = require("truffle-hdwallet-provider");
 const Web3 = require("web3");
 const { mnemonic, rinkeby } = require("./env");
 
-const { interface, bytecode } = require("./build/contracts/ZombieOwnership.json");
+const { interface, bytecode } = require("./build/contracts/CryptoZombies.json");
 
 const provider = new HDWalletProvider(mnemonic, rinkeby);
 
