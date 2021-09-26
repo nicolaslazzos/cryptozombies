@@ -27,7 +27,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "compile:contracts": "cd src/ethereum && truffle compile",
-    "deploy:contracts": "cd src/ethereum && truffle migrate -f 2 --network rinkeby"
+    "deploy:contracts": "cd src/ethereum && truffle migrate -f 2 --network rinkeby",
+    "test:contracts": "cd src/ethereum && truffle test"
   },
   "eslintConfig": {
     "extends": [
