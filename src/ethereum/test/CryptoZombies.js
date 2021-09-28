@@ -2,6 +2,16 @@ const CryptoZombies = artifacts.require("CryptoZombies");
 
 const zombieNames = ["Zombie 1", "Zombie 2"];
 
+async function shouldThrow(promise) {
+  try {
+    await promise;
+  } catch (err) {
+    return assert(true);
+  }
+
+  assert(false);
+}
+
 contract("CryptoZombies", (accounts) => {
   let [alice, bob] = accounts;
 
@@ -18,7 +28,10 @@ contract("CryptoZombies", (accounts) => {
     assert.equal(result.logs[0].args.name, zombieNames[0]);
   });
 
-  it("should not allow zombies", async () => {});
+  it("should not allow two zombies", async () => {
+    await contractInstance.createRandomZombie(zombieNames[0], { from: alice });
+    shouldThrow(contractInstance.createRandomZombie(zombieNames[1], { from: alice }));
+  });
 
   afterEach(async () => {
     await contractInstance.kill();
