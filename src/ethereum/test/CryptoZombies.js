@@ -21,6 +21,10 @@ contract("CryptoZombies", (accounts) => {
     contractInstance = await CryptoZombies.new();
   });
 
+  afterEach(async () => {
+    await contractInstance.kill();
+  });
+
   it("should be able to create a new zombie", async () => {
     const result = await contractInstance.createRandomZombie(zombieNames[0], { from: alice });
 
@@ -33,7 +37,22 @@ contract("CryptoZombies", (accounts) => {
     shouldThrow(contractInstance.createRandomZombie(zombieNames[1], { from: alice }));
   });
 
-  afterEach(async () => {
-    await contractInstance.kill();
+  context("with the single-step transfer scenario", async () => {
+    it("should transfer a zombie", async () => {
+      const result = await contractInstance.createRandomZombie(zombieNames[0], { from: alice });
+      const zombieId = result.logs[0].args.zombieId.toNumber();
+      await contractInstance.transfer(bob, zombieId, { from: alice });
+      const newOwner = await contractInstance.ownerOf(zombieId, { from: alice });
+      assert.equal(newOwner, bob);
+    });
+  });
+
+  xcontext("with the two-step transfer scenario", async () => {
+    it("should approve and then transfer a zombie when the approved address calls transferFrom", async () => {
+      // TODO: Test the two-step scenario.  The approved address calls transferFrom
+    });
+    it("should approve and then transfer a zombie when the owner calls transferFrom", async () => {
+      // TODO: Test the two-step scenario.  The owner calls transferFrom
+    });
   });
 });
