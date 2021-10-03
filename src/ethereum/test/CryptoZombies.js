@@ -1,4 +1,5 @@
 const { shouldThrow, increaseTime, duration } = require("./helpers");
+const expect = require("chai").expect;
 
 const CryptoZombies = artifacts.require("CryptoZombies");
 
@@ -11,6 +12,8 @@ contract("CryptoZombies", (accounts) => {
 
   beforeEach(async () => {
     contractInstance = await CryptoZombies.new();
+
+    // contractInstance.defaults({ gasPrice: 0 }); // to avoid running out of gas
   });
 
   afterEach(async () => {
@@ -20,8 +23,8 @@ contract("CryptoZombies", (accounts) => {
   it("should be able to create a new zombie", async () => {
     const result = await contractInstance.createRandomZombie(zombieNames[0], { from: alice });
 
-    assert.equal(result.receipt.status, true);
-    assert.equal(result.logs[0].args.name, zombieNames[0]);
+    expect(result.receipt.status).to.equal(true);
+    expect(result.logs[0].args.name).to.equal(zombieNames[0]);
   });
 
   it("should not allow two zombies", async () => {
@@ -35,7 +38,7 @@ contract("CryptoZombies", (accounts) => {
       const zombieId = result.logs[0].args.zombieId.toNumber();
       await contractInstance.transfer(bob, zombieId, { from: alice });
       const newOwner = await contractInstance.ownerOf(zombieId);
-      assert.equal(newOwner, bob);
+      expect(newOwner).to.equal(bob);
     });
   });
 
@@ -46,7 +49,7 @@ contract("CryptoZombies", (accounts) => {
       await contractInstance.approve(bob, zombieId, { from: alice });
       await contractInstance.takeOwnership(zombieId, { from: bob });
       const newOwner = await contractInstance.ownerOf(zombieId);
-      assert.equal(newOwner, bob);
+      expect(newOwner).to.equal(bob);
     });
   });
 
@@ -59,6 +62,6 @@ contract("CryptoZombies", (accounts) => {
     await increaseTime(duration.days(1)); // avoiding the zombie cooldown
 
     await contractInstance.attack(firstZombieId, secondZombieId, { from: alice });
-    assert.equal(result.receipt.status, true);
+    expect(result.receipt.status).to.equal(true);
   });
 });
