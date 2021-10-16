@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useWeb3 } from "./web3";
-import { cryptozombies } from "./contracts";
+import CryptoZombies from "./ethereum/build/contracts/CryptoZombies.json";
 
 const App: React.FC = () => {
   const { web3, address } = useWeb3();
@@ -23,7 +23,8 @@ const App: React.FC = () => {
 
   const initializeContract = async () => {
     try {
-      const contract = new web3.eth.Contract(cryptozombies.abi, cryptozombies.address);
+      const network = await web3.eth.net.getId();
+      const contract = new web3.eth.Contract(CryptoZombies.abi, CryptoZombies.networks[network].address);
 
       // use `filter` to only fire this code when `_to` equals `address`
       // for this, the `_to` param in the contract event should be `indexed`
